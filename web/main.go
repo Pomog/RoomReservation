@@ -18,7 +18,6 @@ var app config.AppConfig
 var session *scs.SessionManager
 
 func main() {
-
 	// change this to true when in production
 	app.InProduction = false
 

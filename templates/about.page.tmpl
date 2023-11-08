@@ -9,6 +9,14 @@
                 <p>This is the about page</p>
 
                 <p>This is from the Template : {{index .StringMap "test"}}</p>
+
+                <p>
+                   {{if ne (index .StringMap "remote_ip") ""}}
+                        Your IP is {{index .StringMap "remote_ip"}}
+                    {{else}}
+                        Your IP is unknown. Visit the <a href="/">Home Page</a> to tell us your IP.
+                    {{end}}
+                </p>
             </div>
         </div>
     </div>

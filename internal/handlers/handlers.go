@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"udemyCourse1/pkg/config"
-	"udemyCourse1/pkg/models"
-	"udemyCourse1/pkg/render"
+	"udemyCourse1/internal/config"
+	"udemyCourse1/internal/models"
+	"udemyCourse1/internal/render"
 )
 
 // Repo is the repository used by the handlers

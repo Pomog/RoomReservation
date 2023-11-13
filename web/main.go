@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"udemyCourse1/pkg/config"
-	"udemyCourse1/pkg/handlers"
-	"udemyCourse1/pkg/render"
+	"udemyCourse1/internal/config"
+	"udemyCourse1/internal/handlers"
+	"udemyCourse1/internal/render"
 
 	"github.com/alexedwards/scs/v2"
 )

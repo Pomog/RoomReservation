@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"path/filepath"
 	"text/template"
-	"udemyCourse1/pkg/config"
-	"udemyCourse1/pkg/models"
+	"udemyCourse1/internal/config"
+	"udemyCourse1/internal/models"
 
 	"github.com/justinas/nosurf"
 )

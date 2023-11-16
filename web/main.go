@@ -1,12 +1,14 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 	"udemyCourse1/internal/config"
 	"udemyCourse1/internal/handlers"
+	"udemyCourse1/internal/models"
 	"udemyCourse1/internal/render"
 
 	"github.com/alexedwards/scs/v2"
@@ -18,6 +20,9 @@ var app config.AppConfig
 var session *scs.SessionManager
 
 func main() {
+
+	// data in the session
+	gob.Register(models.Reservation{})
 
 	// change this to true when in production
 	app.InProduction = false

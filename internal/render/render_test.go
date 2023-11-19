@@ -61,3 +61,15 @@ func TestRenderTemplate(t *testing.T) {
 	}
 
 }
+
+func TestNewTemplates(t *testing.T) {
+	NewTemplates(app)
+}
+
+func TestCreateTemplateCashe(t *testing.T) {
+	pathToTemplates = "./../../templates"
+	_, err := CreateTemplateCashe()
+	if err != nil {
+		t.Error(err)
+	}
+}

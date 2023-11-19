@@ -69,7 +69,6 @@ func CreateTemplateCashe() (map[string]*template.Template, error) {
 	myCache := map[string]*template.Template{}
 
 	// get all files *.page.tmpl from templates ./templates
-
 	pages, err := filepath.Glob(fmt.Sprintf("%s/*.page.tmpl", pathToTemplates))
 	if err != nil {
 		return myCache, err

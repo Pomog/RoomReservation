@@ -8,3 +8,7 @@ func TestRun(t *testing.T) {
 		t.Error("run() failed")
 	}
 }
+
+/*
+go test -coverprofile=coverage.out && go tool cover -html coverage.out
+*/

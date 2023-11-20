@@ -1,15 +1,13 @@
 package forms
 
 import (
-	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"testing"
 )
 
 func TestForm_Valid(t *testing.T) {
-	r := httptest.NewRequest("POST", "/some-url", nil)
-	form := New(r.PostForm)
+	postedData := url.Values{}
+	form := New(postedData)
 
 	isValid := form.Valid()
 	if !isValid {
@@ -18,8 +16,8 @@ func TestForm_Valid(t *testing.T) {
 }
 
 func TestForm_Required(t *testing.T) {
-	r := httptest.NewRequest("POST", "/some-url", nil)
-	form := New(r.PostForm)
+	postedData := url.Values{}
+	form := New(postedData)
 
 	form.Required("a", "b", "c")
 	if form.Valid() {
@@ -30,11 +28,8 @@ func TestForm_Required(t *testing.T) {
 	postData.Add("a", "a")
 	postData.Add("b", "b")
 	postData.Add("c", "c")
+	form = New(postData)
 
-	r, _ = http.NewRequest("POST", "/some-url", nil)
-	r.PostForm = postData
-
-	form = New(r.PostForm)
 	form.Required("a", "b", "c")
 	if !form.Valid() {
 		t.Error("shows does not have required fields when it does")
@@ -47,15 +42,15 @@ func TestForm_Required(t *testing.T) {
 }
 
 func TestForm_Has(t *testing.T) {
-	r := httptest.NewRequest("POST", "/some-url", nil)
-	form := New(r.PostForm)
+	postedData := url.Values{}
+	form := New(postedData)
 
 	has := form.Has("whatever")
 	if has {
 		t.Error("form shows has field when it does not")
 	}
 
-	postedData := url.Values{}
+	postedData = url.Values{}
 	postedData.Add("some_field", "some_value")
 
 	form = New(postedData)
@@ -67,8 +62,8 @@ func TestForm_Has(t *testing.T) {
 }
 
 func TestForm_MinLength(t *testing.T) {
-	r := httptest.NewRequest("POST", "/some-url", nil)
-	form := New(r.PostForm)
+	postedData := url.Values{}
+	form := New(postedData)
 
 	form.MinLength("x", 10)
 
@@ -76,7 +71,7 @@ func TestForm_MinLength(t *testing.T) {
 		t.Error("form shows min length for non-existent field")
 	}
 
-	postedData := url.Values{}
+	postedData = url.Values{}
 	postedData.Add("some_field", "some_value")
 	form = New(postedData)
 
@@ -98,20 +93,29 @@ func TestForm_MinLength(t *testing.T) {
 }
 
 func TestForm_IsEmail(t *testing.T) {
-	r := httptest.NewRequest("POST", "/some-url", nil)
-	form := New(r.PostForm)
+	postedData := url.Values{}
+	form := New(postedData)
 
 	form.IsEmail("x")
 	if form.Valid() {
 		t.Error("form shows valid email for non-existent field")
 	}
 
-	postedData := url.Values{}
+	postedData = url.Values{}
 	postedData.Add("email", "test@test.com")
 	form = New(postedData)
 
 	form.IsEmail("email")
 	if !form.Valid() {
 		t.Error("got an invalid email when we should not have")
+	}
+
+	postedData = url.Values{}
+	postedData.Add("email", "test.com")
+	form = New(postedData)
+
+	form.IsEmail("email")
+	if form.Valid() {
+		t.Error("got a valid email when we should not have")
 	}
 }

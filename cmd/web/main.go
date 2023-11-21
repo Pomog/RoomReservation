@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 	"udemyCourse1/internal/config"
 	"udemyCourse1/internal/handlers"
+	helpers "udemyCourse1/internal/helper"
 	"udemyCourse1/internal/models"
 	"udemyCourse1/internal/render"
 
@@ -18,6 +20,9 @@ const port = ":8080"
 
 var app config.AppConfig
 var session *scs.SessionManager
+
+var infolog *log.Logger
+var errorlog *log.Logger
 
 func main() {
 
@@ -46,6 +51,14 @@ func run() error {
 	// change this to true when in production
 	app.InProduction = false
 
+	// info log
+	infolog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	app.InfoLog = infolog
+
+	// error log
+	errorlog = log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	app.ErrorLog = errorlog
+
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
 	session.Cookie.Persist = true
@@ -66,6 +79,8 @@ func run() error {
 	handlers.NewHandlers(repo)
 
 	render.NewTemplates(&app)
+
+	helpers.NewHelpers(&app)
 
 	return nil
 }

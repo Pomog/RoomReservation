@@ -2,6 +2,7 @@ package render
 
 import (
 	"encoding/gob"
+	"log"
 	"net/http"
 	"os"
 	"testing"
@@ -15,12 +16,23 @@ import (
 var session *scs.SessionManager
 var testApp config.AppConfig
 
+var infolog *log.Logger
+var errorlog *log.Logger
+
 func TestMain(m *testing.M) {
 	// data in the session
 	gob.Register(models.Reservation{})
 
 	// change this to true when in production
 	testApp.InProduction = false
+
+	// info log
+	infolog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	testApp.InfoLog = infolog
+
+	// error log
+	errorlog = log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	testApp.ErrorLog = errorlog
 
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
@@ -42,12 +54,10 @@ func (tw *myWriter) Header() http.Header {
 }
 
 func (tw *myWriter) WriteHeader(i int) {
-	
+
 }
 
 func (tw *myWriter) Write(b []byte) (int, error) {
 	length := len(b)
 	return length, nil
 }
-
-

@@ -8,3 +8,7 @@ go build -o bookings cmd/web/*.go && ./bookings
 # go test -v -coverprofile=coverage.out ./... && go tool cover -func=coverage.out
 # go test -v -coverprofile=coverage.out ./... && go tool cover -func=coverage.out | grep -i total
 # ./run.sh
+
+# sudo service postgresql status
+# sudo -u postgres psql
+# install soda brew install gobuffalo/tap/pop

@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"net/http"
 	"udemyCourse1/internal/config"
+	"udemyCourse1/internal/driver"
 	"udemyCourse1/internal/forms"
 	helpers "udemyCourse1/internal/helper"
 	"udemyCourse1/internal/models"
 	"udemyCourse1/internal/render"
+	"udemyCourse1/internal/repository"
+	"udemyCourse1/internal/repository/dbrepo"
 )
 
 // Repo is the repository used by the handlers
@@ -17,12 +20,14 @@ var Repo *Repository
 // Repository is the repository type
 type Repository struct {
 	App *config.AppConfig
+	DB  repository.DatabaseRepo
 }
 
 // NewRepo creates a new repository
-func NewRepo(a *config.AppConfig) *Repository {
+func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
 	return &Repository{
 		App: a,
+		DB:  dbrepo.NewPostgresRepo(db.SQL, a),
 	}
 }
 

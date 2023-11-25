@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 	"udemyCourse1/internal/config"
+	"udemyCourse1/internal/driver"
 	"udemyCourse1/internal/handlers"
 	helpers "udemyCourse1/internal/helper"
 	"udemyCourse1/internal/models"
@@ -26,10 +27,12 @@ var errorlog *log.Logger
 
 func main() {
 
-	err := run()
+	db, err := run()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	defer db.SQL.Close()
 
 	fmt.Printf("Server starting on port %s\n", port)
 
@@ -42,7 +45,7 @@ func main() {
 	log.Fatal(err)
 }
 
-func run() error {
+func run() (*driver.DB, error) {
 	fmt.Println("Starting app")
 
 	// data in the session
@@ -67,20 +70,27 @@ func run() error {
 
 	app.Session = session
 
+	// connect to database
+	log.Println("Connecting to database...")
+	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=bookings user=thoryur password=plot123123")
+	if err != nil {
+		log.Fatal("cannot connect to database! Dying...")
+	}
+
 	tc, err := render.CreateTemplateCashe()
 	if err != nil {
 		log.Fatal("cannot create template cache")
-		return err
+		return nil, err
 	}
 	app.TemplateCache = tc
 	app.UseCache = false
 
-	repo := handlers.NewRepo(&app)
+	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)
 
 	render.NewTemplates(&app)
 
 	helpers.NewHelpers(&app)
 
-	return nil
+	return db, nil
 }

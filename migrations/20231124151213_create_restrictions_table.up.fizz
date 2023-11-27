@@ -1,7 +1,4 @@
 create_table("restrictions") {
   t.Column("id", "integer", {primary: true })
   t.Column("restriction_name", "string", {defdault: ""})
-  t.Column("start_date", "date", {})
-  t.Column("end_date", "date", {})
-  t.Column("room_id", "integer", {})
 }

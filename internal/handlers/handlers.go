@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 	"udemyCourse1/internal/config"
@@ -296,4 +298,26 @@ func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
 	m.App.Session.Put(r.Context(), "reservation", res)
 
 	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
+}
+
+func (m *Repository) TestResults(w http.ResponseWriter, r *http.Request) {
+	// Open the HTML file
+	file, err := os.Open("coverage.html")
+	if err != nil {
+		http.Error(w, "Error opening HTML file", http.StatusInternalServerError)
+		// Log the error or handle it as appropriate for your application
+		return
+	}
+	defer file.Close()
+
+	// Set the Content-Type header to indicate that you're returning HTML
+	w.Header().Set("Content-Type", "text/html")
+
+	// Copy the file content to the response writer
+	_, err = io.Copy(w, file)
+	if err != nil {
+		http.Error(w, "Error writing HTML response", http.StatusInternalServerError)
+		// Log the error or handle it as appropriate for your application
+		return
+	}
 }

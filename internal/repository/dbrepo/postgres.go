@@ -2,7 +2,6 @@ package dbrepo
 
 import (
 	"context"
-	"fmt"
 	"time"
 	"udemyCourse1/internal/models"
 )
@@ -76,9 +75,6 @@ func (m *postgresDBRepo) SearchAvailabilityByDatesByRoomID(start, end time.Time,
 	from room_restrictions
 	where room_id = $1 and
 	$2 <= end_date and $3 >= start_date`
-
-	fmt.Println("end")
-	fmt.Println(end)
 
 	row := m.DB.QueryRowContext(ctx, query, roomID, start, end)
 

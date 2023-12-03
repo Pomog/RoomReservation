@@ -54,7 +54,6 @@ func run() (*driver.DB, error) {
 	gob.Register(models.Room{})
 	gob.Register(models.Restriction{})
 
-
 	// change this to true when in production
 	app.InProduction = false
 

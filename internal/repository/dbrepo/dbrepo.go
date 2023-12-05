@@ -3,6 +3,7 @@ package dbrepo
 import (
 	"database/sql"
 	"udemyCourse1/internal/config"
+	"udemyCourse1/internal/repository"
 )
 
 type postgresDBRepo struct {
@@ -10,9 +11,20 @@ type postgresDBRepo struct {
 	DB  *sql.DB
 }
 
-func NewPostgresRepo(conn *sql.DB, a *config.AppConfig) *postgresDBRepo {
+type testDBRepo struct {
+	App *config.AppConfig
+	DB  *sql.DB
+}
+
+func NewPostgresRepo(conn *sql.DB, a *config.AppConfig) repository.DatabaseRepo {
 	return &postgresDBRepo{
 		App: a,
 		DB:  conn,
+	}
+}
+
+func NewTestRepo(a *config.AppConfig) repository.DatabaseRepo {
+	return &testDBRepo{
+		App: a,
 	}
 }

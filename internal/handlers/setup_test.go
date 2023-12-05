@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"testing"
 	"text/template"
 	"time"
 	"udemyCourse1/internal/config"
@@ -28,7 +29,7 @@ var functions = template.FuncMap{}
 var infolog *log.Logger
 var errorlog *log.Logger
 
-func getRoutes() http.Handler {
+func TestMain(m *testing.M) {
 	// data in the session
 	gob.Register(models.Reservation{})
 
@@ -58,10 +59,15 @@ func getRoutes() http.Handler {
 	app.TemplateCache = tc
 	app.UseCache = true
 
-	repo := NewRepo(&app)
+	repo := NewTestRepo(&app)
 	NewHandlers(repo)
 
 	render.NewRenderer(&app)
+
+	os.Exit(m.Run())
+}
+
+func getRoutes() http.Handler {
 
 	mux := chi.NewRouter()
 

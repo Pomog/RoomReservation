@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 	"udemyCourse1/internal/models"
 )
@@ -19,15 +18,14 @@ var theTests = []struct {
 	name               string
 	url                string
 	method             string
-	params             []postData
 	expectedStatusCode int
 }{
-	// {"home", "/", "GET", []postData{}, http.StatusOK},
-	// {"about", "/about", "GET", []postData{}, http.StatusOK},
-	// {"generals-quarters", "/generals-quarters", "GET", []postData{}, http.StatusOK},
-	// {"majors-suite", "/majors-suite", "GET", []postData{}, http.StatusOK},
-	// {"search-availability", "/search-availability", "GET", []postData{}, http.StatusOK},
-	// {"make-reservation", "/make-reservation", "GET", []postData{}, http.StatusOK},
+	{"home", "/", "GET", http.StatusOK},
+	{"about", "/about", "GET", http.StatusOK},
+	{"generals-quarters", "/generals-quarters", "GET", http.StatusOK},
+	{"majors-suite", "/majors-suite", "GET", http.StatusOK},
+	{"search-availability", "/search-availability", "GET", http.StatusOK},
+
 	// {"post-search-availability", "/search-availability", "POST", []postData{
 	// 	{key: "start", value: "2021-01-01"},
 	// 	{key: "end", value: "2021-01-02"},
@@ -51,31 +49,16 @@ func TestHandlers(t *testing.T) {
 	defer ts.Close()
 
 	for _, e := range theTests {
-		if e.method == "GET" {
-			res, err := ts.Client().Get(ts.URL + e.url)
-			if err != nil {
-				t.Log(err)
-				t.Fatal(err)
-			}
-			if res.StatusCode != e.expectedStatusCode {
-				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, res.StatusCode)
-			}
-		} else {
-			values := url.Values{}
-			for _, x := range e.params {
-				values.Add(x.key, x.value)
-			}
-			res, err := ts.Client().PostForm(ts.URL+e.url, values)
-			if err != nil {
-				t.Log(err)
-				t.Fatal(err)
-			}
-			if res.StatusCode != e.expectedStatusCode {
-				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, res.StatusCode)
-			}
+		res, err := ts.Client().Get(ts.URL + e.url)
+		if err != nil {
+			t.Log(err)
+			t.Fatal(err)
 		}
-	}
+		if res.StatusCode != e.expectedStatusCode {
+			t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, res.StatusCode)
+		}
 
+	}
 }
 
 func TestRepository_Reservation(t *testing.T) {
@@ -100,6 +83,35 @@ func TestRepository_Reservation(t *testing.T) {
 
 	if rr.Code != http.StatusOK {
 		t.Errorf("Reservation handler returnrd wrong response code: got %d, want %d", rr.Code, http.StatusOK)
+	}
+
+	// test case, reservation is not in session (reset everything)
+	req, _ = http.NewRequest("GET", "/make-reservation", nil)
+	ctx = getCtx(req)
+	req = req.WithContext(ctx)
+
+	rr = httptest.NewRecorder()
+
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusTemporaryRedirect {
+		t.Errorf("Reservation handler returnrd wrong response code: got %d, want %d", rr.Code, http.StatusTemporaryRedirect)
+	}
+
+	//test with non-existing room
+	req, _ = http.NewRequest("GET", "/make-reservation", nil)
+	ctx = getCtx(req)
+	req = req.WithContext(ctx)
+
+	rr = httptest.NewRecorder()
+	reservation.RoomID = 100
+	reservation.Room.ID = 100
+	session.Put(ctx, "reservation", reservation)
+
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusTemporaryRedirect {
+		t.Errorf("Reservation handler returnrd wrong response code: got %d, want %d", rr.Code, http.StatusTemporaryRedirect)
 	}
 }
 

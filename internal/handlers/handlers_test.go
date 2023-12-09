@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -228,6 +229,35 @@ func TestRepository_PostReservation(t *testing.T) {
 	if rr.Code != http.StatusTemporaryRedirect {
 		t.Errorf("PostReservation handler faild whrt trying to fail insertingf reservation: got %d, wanted %d", rr.Code, http.StatusTemporaryRedirect)
 	}
+}
+
+func TestRepository_AvailabilityJSON(t *testing.T) {
+	// rooms are not available
+	postedData := url.Values{}
+	postedData.Add("start_date", "2050-01-01")
+	postedData.Add("end_date", "2050-01-02")
+	postedData.Add("phone", "555-555-5555")
+	postedData.Add("room_id", "1")
+
+	req, _ := http.NewRequest("POST", "/search-availability-json", strings.NewReader(postedData.Encode()))
+
+	ctx, _ := getCtx(req)
+	req = req.WithContext(ctx)
+
+	req.Header.Set("Content-Type", "x-www-form-urlencoded")
+
+	handler := http.HandlerFunc(Repo.AvailabilityJSON)
+
+	rr := httptest.NewRecorder()
+
+	handler.ServeHTTP(rr, req)
+
+	var j jsonResponse
+	err := json.Unmarshal([]byte(rr.Body.Bytes()), &j)
+	if err != nil {
+		t.Error("failed to parse")
+	}
+
 }
 
 func getCtx(req *http.Request) (context.Context, error) {

@@ -245,6 +245,19 @@ type jsonResponse struct {
 
 // AvailabilityJSON handles request for availability and sends JSON response
 func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
+
+	err := r.ParseForm()
+	if err != nil {
+		resp := jsonResponse{
+			OK:      false,
+			Message: "Internal server error",
+		}
+		out, _ := json.MarshalIndent(resp, "", "    ")
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(out)
+		return
+	}
+
 	sd := r.Form.Get("start")
 	ed := r.Form.Get("end")
 
@@ -262,17 +275,25 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("AvailabilityJSON startDate", startDate)
-	fmt.Println("AvailabilityJSON endDate", endDate)
-
 	roomID, err := strconv.Atoi(r.Form.Get("room_id"))
 	if err != nil {
-		m.App.Session.Put(r.Context(), "error", "can't parse room id")
+		m.App.Session.Put(r.Context(), "error", "can't parse room id, AvailabilityJSON")
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
-	available, _ := m.DB.SearchAvailabilityByDatesByRoomID(startDate, endDate, roomID)
+	available, err := m.DB.SearchAvailabilityByDatesByRoomID(startDate, endDate, roomID)
+	if err != nil {
+		resp := jsonResponse{
+			OK:      false,
+			Message: "Error DB connecting SearchAvailabilityByDatesByRoomID",
+		}
+		out, _ := json.MarshalIndent(resp, "", "    ")
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(out)
+		return
+
+	}
 	resp := jsonResponse{
 		OK:        available,
 		Message:   "",
@@ -328,7 +349,8 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
 	roomId, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "can't parse room id, ChooseRoom")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -369,7 +391,12 @@ func (m *Repository) TestResults(w http.ResponseWriter, r *http.Request) {
 
 // BookRoom takes URL parameters, bulds sessional variable and takes user to make res screen
 func (m *Repository) BookRoom(w http.ResponseWriter, r *http.Request) {
-	roomID, _ := strconv.Atoi(r.URL.Query().Get("id"))
+	roomID, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "can't parse room id, BookRoom")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
 	sd := r.URL.Query().Get("s")
 	ed := r.URL.Query().Get("e")
 

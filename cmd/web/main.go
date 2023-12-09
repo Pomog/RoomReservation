@@ -34,6 +34,28 @@ func main() {
 
 	defer db.SQL.Close()
 
+	// test mail
+	/*
+		from := "thoryur@gmail.com"
+		password := "juzt yqwj advj oksj"
+		to := "thoryur@gmail.com"
+		subject := "Test Email"
+		body := "Hello, this is a test email from Golang."
+
+		msg := "To: " + to + "\r\n" +
+			"Subject: " + subject + "\r\n" +
+			"\r\n" + body
+
+		auth := smtp.PlainAuth("", from, password, "smtp.gmail.com")
+
+		err = smtp.SendMail("smtp.gmail.com:587", auth, from, []string{to}, []byte(msg))
+		if err != nil {
+			log.Fatal(err)
+		} else {
+			log.Println("Email sent successfully.")
+		}
+	*/
+
 	fmt.Printf("Server starting on port %s\n", port)
 
 	srv := &http.Server{

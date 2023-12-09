@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 	"udemyCourse1/internal/models"
 )
@@ -71,7 +73,10 @@ func TestRepository_Reservation(t *testing.T) {
 	}
 
 	req, _ := http.NewRequest("GET", "/make-reservation", nil)
-	ctx := getCtx(req)
+	ctx, err := getCtx(req)
+	if err != nil {
+		t.Fatalf("Error creating context: %v", err)
+	}
 	req = req.WithContext(ctx)
 
 	rr := httptest.NewRecorder()
@@ -87,7 +92,10 @@ func TestRepository_Reservation(t *testing.T) {
 
 	// test case, reservation is not in session (reset everything)
 	req, _ = http.NewRequest("GET", "/make-reservation", nil)
-	ctx = getCtx(req)
+	ctx, err = getCtx(req)
+	if err != nil {
+		t.Fatalf("Error creating context: %v", err)
+	}
 	req = req.WithContext(ctx)
 
 	rr = httptest.NewRecorder()
@@ -100,7 +108,10 @@ func TestRepository_Reservation(t *testing.T) {
 
 	//test with non-existing room
 	req, _ = http.NewRequest("GET", "/make-reservation", nil)
-	ctx = getCtx(req)
+	ctx, err = getCtx(req)
+	if err != nil {
+		t.Fatalf("Error creating context: %v", err)
+	}
 	req = req.WithContext(ctx)
 
 	rr = httptest.NewRecorder()
@@ -115,10 +126,91 @@ func TestRepository_Reservation(t *testing.T) {
 	}
 }
 
-func getCtx(req *http.Request) context.Context {
+func TestRepository_PostReservation(t *testing.T) {
+
+	reservation := models.Reservation{
+		RoomID: 1,
+		Room: models.Room{
+			ID:       1,
+			RoomName: "General's Quarters",
+		},
+	}
+
+	postedData := url.Values{}
+	postedData.Add("start_date", "2050-01-01")
+	postedData.Add("end_date", "2050-01-02")
+	postedData.Add("first_name", "John")
+	postedData.Add("last_name", "Smith")
+	postedData.Add("email", "john@smith.com")
+	postedData.Add("phone", "555-555-5555")
+	postedData.Add("room_id", "1")
+
+	req, _ := http.NewRequest("POST", "/make-reservation", strings.NewReader(postedData.Encode()))
+	ctx, _ := getCtx(req)
+	req = req.WithContext(ctx)
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rr := httptest.NewRecorder()
+	session.Put(ctx, "reservation", reservation)
+
+	handler := http.HandlerFunc(Repo.PostReservation)
+
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusSeeOther {
+		t.Errorf("PostReservation handler returned wrong response code: got %d, wanted %d", rr.Code, http.StatusSeeOther)
+	}
+
+	// test for missing POST body
+	req, _ = http.NewRequest("POST", "/make-reservation", nil)
+	ctx, _ = getCtx(req)
+	req = req.WithContext(ctx)
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rr = httptest.NewRecorder()
+
+	handler = http.HandlerFunc(Repo.PostReservation)
+
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusTemporaryRedirect {
+		t.Errorf("PostReservation handler returned wrong response code: got %d, wanted %d", rr.Code, http.StatusTemporaryRedirect)
+	}
+
+	// test for invalid Start date
+	postedData = url.Values{}
+	postedData.Add("start_date", "invalid")
+	postedData.Add("end_date", "2050-01-02")
+	postedData.Add("first_name", "John")
+	postedData.Add("last_name", "Smith")
+	postedData.Add("email", "john@smith.com")
+	postedData.Add("phone", "555-555-5555")
+	postedData.Add("room_id", "1")
+	req, _ = http.NewRequest("POST", "/make-reservation", strings.NewReader(postedData.Encode()))
+	ctx, _ = getCtx(req)
+	req = req.WithContext(ctx)
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rr = httptest.NewRecorder()
+
+	handler = http.HandlerFunc(Repo.PostReservation)
+
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusTemporaryRedirect {
+		t.Errorf("PostReservation handler returned wrong response code for invalid Start date: got %d, wanted %d", rr.Code, http.StatusTemporaryRedirect)
+	}
+}
+
+func getCtx(req *http.Request) (context.Context, error) {
 	ctx, err := session.Load(req.Context(), req.Header.Get("X-Session"))
 	if err != nil {
 		log.Println(err)
+		// Returning an error here allows you to handle it in the calling code.
+		return ctx, err
 	}
-	return ctx
+	return ctx, nil
 }

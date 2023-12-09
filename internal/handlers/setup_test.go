@@ -30,7 +30,7 @@ var infolog *log.Logger
 var errorlog *log.Logger
 
 func TestMain(m *testing.M) {
-	// data in the session
+	// data in the sessionreservation
 	gob.Register(models.Reservation{})
 
 	// change this to true when in production

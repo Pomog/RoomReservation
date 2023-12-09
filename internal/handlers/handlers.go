@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -100,14 +100,19 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 
 // PostReservation handles posting of a reservation form
 func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
+
 	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+	fmt.Println("Reservation value:", reservation, "OK:", ok)
 	if !ok {
-		helpers.ServerError(w, errors.New("can't get form session"))
+		fmt.Println("m.App.Session.Get error")
+		m.App.Session.Put(r.Context(), "error", "can't parse form")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
 	err := r.ParseForm()
 	if err != nil {
+		fmt.Println("ParseForm error")
 		helpers.ServerError(w, err)
 		return
 	}
@@ -118,12 +123,12 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	reservation.Email = r.Form.Get("email")
 
 	form := forms.New(r.PostForm)
-
 	form.Required("first_name", "last_name", "email", "phone")
 	form.MinLength("first_name", 3)
 	form.IsEmail("email")
 
 	if !form.Valid() {
+		fmt.Println("The Form Is Not Valid")
 		data := make(map[string]interface{})
 		data["reservation"] = reservation
 		render.Template(w, r, "make-reservation.page.tmpl", &models.TemplateData{
@@ -135,7 +140,10 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	newResrvationID, err := m.DB.InserReservation(reservation)
 	if err != nil {
-		helpers.ServerError(w, err)
+		fmt.Println("InserReservation error")
+		m.App.Session.Put(r.Context(), "error", "can't insert reservation into DB")
+		log.Println("can't insert reservation into DB")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -149,7 +157,9 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	err = m.DB.InsertRoomRestriction(restriction)
 	if err != nil {
-		helpers.ServerError(w, err)
+		fmt.Println("InsertRoomRestriction error")
+		m.App.Session.Put(r.Context(), "error", "can't insert room restriction")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -239,13 +249,28 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 	ed := r.Form.Get("end")
 
 	layout := "2006-01-02"
-	startDate, _ := time.Parse(layout, sd)
-	endDate, _ := time.Parse(layout, ed)
+	startDate, err := time.Parse(layout, sd)
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "can't parse start date")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+	endDate, err := time.Parse(layout, ed)
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "can't parse end date")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
 
 	fmt.Println("AvailabilityJSON startDate", startDate)
 	fmt.Println("AvailabilityJSON endDate", endDate)
 
-	roomID, _ := strconv.Atoi(r.Form.Get("room_id"))
+	roomID, err := strconv.Atoi(r.Form.Get("room_id"))
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "can't parse room id")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
 
 	available, _ := m.DB.SearchAvailabilityByDatesByRoomID(startDate, endDate, roomID)
 	resp := jsonResponse{

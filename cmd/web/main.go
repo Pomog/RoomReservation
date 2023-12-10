@@ -33,28 +33,19 @@ func main() {
 	}
 
 	defer db.SQL.Close()
+	defer close(app.MailChan)
 
-	// test mail
-	/*
-		from := "thoryur@gmail.com"
-		password := "juzt yqwj advj oksj"
-		to := "thoryur@gmail.com"
-		subject := "Test Email"
-		body := "Hello, this is a test email from Golang."
+	fmt.Println("Starting Mail listener")
+	listenForMail()
 
-		msg := "To: " + to + "\r\n" +
-			"Subject: " + subject + "\r\n" +
-			"\r\n" + body
+	// msg := models.MailData{
+	// 	To: "john@do.com",
+	// 	From: "me@here.com",
+	// 	Subject: "Test",
+	// 	Content: "Hello",
+	// }
 
-		auth := smtp.PlainAuth("", from, password, "smtp.gmail.com")
-
-		err = smtp.SendMail("smtp.gmail.com:587", auth, from, []string{to}, []byte(msg))
-		if err != nil {
-			log.Fatal(err)
-		} else {
-			log.Println("Email sent successfully.")
-		}
-	*/
+	// app.MailChan <- msg
 
 	fmt.Printf("Server starting on port %s\n", port)
 
@@ -75,6 +66,9 @@ func run() (*driver.DB, error) {
 	gob.Register(models.User{})
 	gob.Register(models.Room{})
 	gob.Register(models.Restriction{})
+
+	mailChan := make(chan models.MailData)
+	app.MailChan = mailChan
 
 	// change this to true when in production
 	app.InProduction = false
@@ -119,3 +113,25 @@ func run() (*driver.DB, error) {
 
 	return db, nil
 }
+
+// test mail
+/*
+	from := "thoryur@gmail.com"
+	password := "juzt yqwj advj oksj"
+	to := "thoryur@gmail.com"
+	subject := "Test Email"
+	body := "Hello, this is a test email from Golang."
+
+	msg := "To: " + to + "\r\n" +
+		"Subject: " + subject + "\r\n" +
+		"\r\n" + body
+
+	auth := smtp.PlainAuth("", from, password, "smtp.gmail.com")
+
+	err = smtp.SendMail("smtp.gmail.com:587", auth, from, []string{to}, []byte(msg))
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println("Email sent successfully.")
+	}
+*/

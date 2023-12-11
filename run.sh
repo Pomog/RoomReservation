@@ -12,3 +12,5 @@ go build -o bookings cmd/web/*.go && ./bookings
 # sudo service postgresql status
 # sudo -u postgres psql
 # install soda brew install gobuffalo/tap/pop
+# 802
+# ~/go/bin/MailHog

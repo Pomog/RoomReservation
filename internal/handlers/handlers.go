@@ -169,13 +169,14 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	<strong>Reservation Confirmation</strong>
 	Dear %s, <br>
 	This is confirm your reservation from %s to %s.
-	`, reservation.FirstName , reservation.StartDate.Format("2006-01-01"), reservation.EndDate.Format("2006-01-01"))
+	`, reservation.FirstName, reservation.StartDate.Format("2006-01-01"), reservation.EndDate.Format("2006-01-01"))
 
 	msg := models.MailData{
-		To: reservation.Email,
-		From: "test@server.com",
-		Subject: "Reservation Confirmation",
-		Content: htmlMessage,
+		To:       reservation.Email,
+		From:     "test@server.com",
+		Subject:  "Reservation Confirmation",
+		Content:  htmlMessage,
+		Template: "basic.html",
 	}
 
 	m.App.MailChan <- msg

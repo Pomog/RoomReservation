@@ -6,7 +6,7 @@
             <div class="col">
                 <h1>Login</h1>
                 <div class="form-group mt-3">
-                    <label for="first_name">Email</label>
+                    <label for="emial">Email</label>
                     {{with.Form.Errors.Get "email"}}
                     <label class="text-danger">{{.}}</label>
                     {{end}}
@@ -15,7 +15,7 @@
                            name='email' value="" required>
                 </div>
                 <div class="form-group">
-                    <label for="first_name">Password</label>
+                    <label for="password">Password</label>
                     {{with.Form.Errors.Get "password"}}
                     <label class="text-danger">{{.}}</label>
                     {{end}}

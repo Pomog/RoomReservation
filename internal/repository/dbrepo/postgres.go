@@ -3,6 +3,7 @@ package dbrepo
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 	"udemyCourse1/internal/models"
 
@@ -155,11 +156,11 @@ func (m *postgresDBRepo) GetRoomById(id int) (models.Room, error) {
 }
 
 // GetUserByID returns a user by ID
-func (m *postgresDBRepo) GetUserByID(id int) (models.User, error){
+func (m *postgresDBRepo) GetUserByID(id int) (models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	query :=`select id, first_name, last_name, email, password, access_level, created_at, updated_at
+	query := `select id, first_name, last_name, email, password, access_level, created_at, updated_at
 			from users where id = $1`
 
 	row := m.DB.QueryRowContext(ctx, query, id)
@@ -183,16 +184,16 @@ func (m *postgresDBRepo) GetUserByID(id int) (models.User, error){
 }
 
 // UpdateUser updates the user by user model in the database
-func (m *postgresDBRepo) UpdateUser(u models.User) (error){
+func (m *postgresDBRepo) UpdateUser(u models.User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	query :=`
+	query := `
 		update users set
 		first_name=$1, last_name=$2, email=$3, access_level=$4, updated_at=$5
 	`
 	_, err := m.DB.ExecContext(ctx, query,
-		u.FirstName, u.LastName, u.Email, u.AccessLevel, time.Now(), 
+		u.FirstName, u.LastName, u.Email, u.AccessLevel, time.Now(),
 	)
 
 	if err != nil {
@@ -202,7 +203,7 @@ func (m *postgresDBRepo) UpdateUser(u models.User) (error){
 }
 
 // Autenticate compared hashed password in DB with login password, using email to search the user
-func (m *postgresDBRepo) Autenticate(email, testPassword string) (int, string, error){
+func (m *postgresDBRepo) Autenticate(email, testPassword string) (int, string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -216,8 +217,11 @@ func (m *postgresDBRepo) Autenticate(email, testPassword string) (int, string, e
 		return id, hashedPassword, err
 	}
 
+	fmt.Println("hashedPassword : " + hashedPassword)
+	fmt.Println("testPassword : " + testPassword)
+
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(testPassword))
-	if err == bcrypt.ErrMismatchedHashAndPassword{
+	if err == bcrypt.ErrMismatchedHashAndPassword {
 		return 0, "", errors.New("incorrect password")
 	} else if err != nil {
 		return 0, "", err
@@ -225,6 +229,3 @@ func (m *postgresDBRepo) Autenticate(email, testPassword string) (int, string, e
 
 	return id, hashedPassword, nil
 }
-
-
-

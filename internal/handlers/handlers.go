@@ -454,6 +454,17 @@ func (m *Repository) ShowLogin(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Logout logs the user out
+func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
+	m.App.Session.Destroy(r.Context())
+	m.App.Session.RenewToken(r.Context())
+
+	render.Template(w, r, "login.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+// PostShowLogin handles logging the user in
 func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 	// updates the session data
 	_ = m.App.Session.RenewToken(r.Context())
@@ -465,22 +476,34 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 
 	form := forms.New(r.PostForm)
 	form.Required("email", "password")
+	form.IsEmail("email")
 	if !form.Valid() {
-		log.Println("not valid form")
+		render.Template(w, r, "/user-login", &models.TemplateData{
+			Form: form,
+		})
+		return
 	}
 
 	email := r.Form.Get("email")
 	password := r.Form.Get("password")
 
 	id, _, err := m.DB.Autenticate(email, password)
+	fmt.Println(id)
 	if err != nil {
-		m.App.Session.Put (r.Context(), "error","Invalid Login")
-		http.Redirect(w,r, "/user-login", http.StatusSeeOther)
+		m.App.Session.Put(r.Context(), "error", "Invalid Login ERROR")
+		http.Redirect(w, r, "/user-login", http.StatusSeeOther)
+		return
+	} else if id == 0 {
+		m.App.Session.Put(r.Context(), "error", "Invalid Login")
+		http.Redirect(w, r, "/user-login", http.StatusSeeOther)
 		return
 	}
 
 	m.App.Session.Put(r.Context(), "user_id", id)
-	m.App.Session.Put (r.Context(), "flash","Logged in successfully")
-	http.Redirect(w,r, "/user-login", http.StatusSeeOther)
+	m.App.Session.Put(r.Context(), "flash", "Logged in successfully")
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
 
+func (m *Repository) AdminDashBoard (w http.ResponseWriter, r *http.Request) {
+	render.Template(w,r, "admin-dashboard.page.tmpl", &models.TemplateData{})
 }

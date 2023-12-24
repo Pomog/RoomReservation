@@ -455,5 +455,32 @@ func (m *Repository) ShowLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
-	log.Println("PostShowLogin - works")
+	// updates the session data
+	_ = m.App.Session.RenewToken(r.Context())
+
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+	}
+
+	form := forms.New(r.PostForm)
+	form.Required("email", "password")
+	if !form.Valid() {
+		log.Println("not valid form")
+	}
+
+	email := r.Form.Get("email")
+	password := r.Form.Get("password")
+
+	id, _, err := m.DB.Autenticate(email, password)
+	if err != nil {
+		m.App.Session.Put (r.Context(), "error","Invalid Login")
+		http.Redirect(w,r, "/user-login", http.StatusSeeOther)
+		return
+	}
+
+	m.App.Session.Put(r.Context(), "user_id", id)
+	m.App.Session.Put (r.Context(), "flash","Logged in successfully")
+	http.Redirect(w,r, "/user-login", http.StatusSeeOther)
+
 }

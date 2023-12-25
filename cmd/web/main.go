@@ -117,7 +117,7 @@ func run() (*driver.DB, error) {
 // test mail
 /*
 	from := "thoryur@gmail.com"
-	password := "juzt yqwj advj oksj"
+	password := ""
 	to := "thoryur@gmail.com"
 	subject := "Test Email"
 	body := "Hello, this is a test email from Golang."

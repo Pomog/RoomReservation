@@ -504,6 +504,19 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func (m *Repository) AdminDashBoard (w http.ResponseWriter, r *http.Request) {
-	render.Template(w,r, "admin-dashboard.page.tmpl", &models.TemplateData{})
+func (m *Repository) AdminDashBoard(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("inside AdminDashBoard")
+	render.Template(w, r, "admin-dashboard.page.tmpl", &models.TemplateData{})
+}
+
+func (m *Repository) AdminNewReservations(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "admin-new-reservations.layout.tmpl", &models.TemplateData{})
+}
+
+func (m *Repository) AdminAllReservations(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "admin-all-reservations.layout.tmpl", &models.TemplateData{})
+}
+
+func (m *Repository) AdminCalendarReservations(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "admin-reservations-calendar.layout.tmpl", &models.TemplateData{})
 }

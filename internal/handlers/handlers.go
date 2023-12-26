@@ -510,13 +510,14 @@ func (m *Repository) AdminDashBoard(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) AdminNewReservations(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, r, "admin-new-reservations.layout.tmpl", &models.TemplateData{})
+	fmt.Println("inside AdminNewReservations")
+	render.Template(w, r, "admin-new-reservations.page.tmpl", &models.TemplateData{})
 }
 
 func (m *Repository) AdminAllReservations(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, r, "admin-all-reservations.layout.tmpl", &models.TemplateData{})
+	render.Template(w, r, "admin-all-reservations.page.tmpl", &models.TemplateData{})
 }
 
 func (m *Repository) AdminCalendarReservations(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, r, "admin-reservations-calendar.layout.tmpl", &models.TemplateData{})
+	render.Template(w, r, "admin-reservations-calendar.page.tmpl", &models.TemplateData{})
 }

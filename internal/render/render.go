@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"text/template"
+	"time"
 	"udemyCourse1/internal/config"
 	"udemyCourse1/internal/models"
 
@@ -15,7 +16,14 @@ import (
 
 var app *config.AppConfig
 var pathToTemplates = "./templates"
-var functions = template.FuncMap{}
+var functions = template.FuncMap{
+	"dateformate": HTMLFormateDate,
+}
+
+// returtns time as string YYYY-MM-DD
+func HTMLFormateDate (t time.Time) string{
+	return t.Format("2006-01-02")
+}
 
 // NewRenderer creates a new template cache
 func NewRenderer(a *config.AppConfig) {

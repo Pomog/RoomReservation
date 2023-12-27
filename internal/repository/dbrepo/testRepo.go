@@ -17,7 +17,7 @@ func (m *testDBRepo) InserReservation(res models.Reservation) (int, error) {
 	if res.RoomID == 2 {
 		return 0, errors.New("InserReservation error")
 	}
-	return 1, nil 
+	return 1, nil
 }
 
 // InsertRoomRestriction inserts a room restriction into the database
@@ -47,12 +47,18 @@ func (m *testDBRepo) GetRoomById(id int) (models.Room, error) {
 	return room, nil
 }
 
-func (m *testDBRepo) GetUserByID(id int) (models.User, error){
+func (m *testDBRepo) GetUserByID(id int) (models.User, error) {
 	return models.User{}, nil
 }
-func (m *testDBRepo) UpdateUser(u models.User) (error){
+func (m *testDBRepo) UpdateUser(u models.User) error {
 	return nil
 }
-func (m *testDBRepo) Autenticate(email, testPassword string) (int, string, error){
+func (m *testDBRepo) Autenticate(email, testPassword string) (int, string, error) {
 	return 0, "", nil
+}
+
+func (m *testDBRepo) AllReservations() ([]models.Reservation, error) {
+	var reservations []models.Reservation
+
+	return reservations, nil
 }

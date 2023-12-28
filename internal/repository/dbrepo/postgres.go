@@ -3,7 +3,6 @@ package dbrepo
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 	"udemyCourse1/internal/models"
 
@@ -217,9 +216,6 @@ func (m *postgresDBRepo) Autenticate(email, testPassword string) (int, string, e
 		return id, hashedPassword, err
 	}
 
-	fmt.Println("hashedPassword : " + hashedPassword)
-	fmt.Println("testPassword : " + testPassword)
-
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(testPassword))
 	if err == bcrypt.ErrMismatchedHashAndPassword {
 		return 0, "", errors.New("incorrect password")
@@ -351,7 +347,7 @@ func (m *postgresDBRepo) GetReservationByID(id int) (models.Reservation, error) 
 
 	query := `select
 		r.id, r.first_name, r.last_name, r.email, r.phone, 
-		r.start_date, r.end_date, r.room_id, r.created_at, r.updated_at, r.processed 
+		r.start_date, r.end_date, r.room_id, r.created_at, r.updated_at, r.processed, 
 		rm.id, rm.room_name
 		from reservations r
 		left join rooms rm
@@ -361,7 +357,6 @@ func (m *postgresDBRepo) GetReservationByID(id int) (models.Reservation, error) 
 	row := m.DB.QueryRowContext(ctx, query, id)
 	err := row.Scan(
 		&i.ID,
-		&i.Processed,
 		&i.FirstName,
 		&i.LastName,
 		&i.Email,
@@ -371,6 +366,7 @@ func (m *postgresDBRepo) GetReservationByID(id int) (models.Reservation, error) 
 		&i.RoomID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Processed,
 		&i.Room.ID,
 		&i.Room.RoomName,
 	)

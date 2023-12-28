@@ -482,7 +482,7 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 	password := r.Form.Get("password")
 
 	id, _, err := m.DB.Autenticate(email, password)
-	fmt.Println(id)
+
 	if err != nil {
 		m.App.Session.Put(r.Context(), "error", "Invalid Login ERROR")
 		http.Redirect(w, r, "/user-login", http.StatusSeeOther)
@@ -549,9 +549,24 @@ func (m *Repository) AdminShowReservation(w http.ResponseWriter, r *http.Request
 		helpers.ServerError(w, err)
 		return
 	}
-	log.Println(id)
+	src := exploded[3]
 
+	stringMap := make(map[string]string)
+	stringMap["src"] = src
 
 	// get reservation from the DB
-	render.Template(w, r, "admin-reservations-show.page.tmpl", &models.TemplateData{})
+	res, err := m.DB.GetReservationByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	data := make(map[string]interface{})
+	data["reservation"] = res
+
+	render.Template(w, r, "admin-reservations-show.page.tmpl", &models.TemplateData{
+		StringMap: stringMap,
+		Data:      data,
+		Form:      forms.New(nil),
+	})
 }

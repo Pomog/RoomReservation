@@ -65,8 +65,15 @@ func (m *testDBRepo) AllReservations() ([]models.Reservation, error) {
 }
 
 // AllNewReservations returns a slice of all NON processed reservations
-func (m *testDBRepo) AllNewReservations() ([]models.Reservation, error){
+func (m *testDBRepo) AllNewReservations() ([]models.Reservation, error) {
 	var reservations []models.Reservation
 
 	return reservations, nil
+}
+
+// GetReservationByID returns reservation by ID
+func (m *testDBRepo) GetReservationByID(id int) (models.Reservation, error) {
+	var i models.Reservation
+
+	return i, nil
 }

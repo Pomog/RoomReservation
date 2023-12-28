@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 	"udemyCourse1/internal/config"
 	"udemyCourse1/internal/driver"
@@ -504,7 +505,7 @@ func (m *Repository) AdminDashBoard(w http.ResponseWriter, r *http.Request) {
 // AdminNewReservations shows all new reservations in admin tool
 func (m *Repository) AdminNewReservations(w http.ResponseWriter, r *http.Request) {
 	reservations, err := m.DB.AllNewReservations()
-	if err != nil{
+	if err != nil {
 		helpers.ServerError(w, err)
 		return
 	}
@@ -520,7 +521,7 @@ func (m *Repository) AdminNewReservations(w http.ResponseWriter, r *http.Request
 // AdminAllReservations shows all reservations in admin tool
 func (m *Repository) AdminAllReservations(w http.ResponseWriter, r *http.Request) {
 	reservations, err := m.DB.AllReservations()
-	if err != nil{
+	if err != nil {
 		helpers.ServerError(w, err)
 		return
 	}
@@ -533,6 +534,24 @@ func (m *Repository) AdminAllReservations(w http.ResponseWriter, r *http.Request
 	})
 }
 
+// AdminCalendarReservations displays the reservations calendar
 func (m *Repository) AdminCalendarReservations(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "admin-reservations-calendar.page.tmpl", &models.TemplateData{})
+}
+
+// AdminShowReservation shows the reservations in the admin tool
+func (m *Repository) AdminShowReservation(w http.ResponseWriter, r *http.Request) {
+
+	// get URL
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[4])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	log.Println(id)
+
+
+	// get reservation from the DB
+	render.Template(w, r, "admin-reservations-show.page.tmpl", &models.TemplateData{})
 }

@@ -2,22 +2,22 @@
 
 {{define "content"}}
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h1>Choose a room</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Choose a room</h1>
 
-                {{$rooms := index .Data "rooms"}}
+            {{$rooms := index .Data "rooms"}}
 
-                <ul>
+            <ul>
                 {{range $rooms}}
-                   <li><a href="/choose-room/{{.ID}}"> {{.RoomName}}</a> </il>
-                {{end}}
-                </ul>
-               
-                </div>
-            </div>
+                <li><a href="/choose-room/{{.ID}}"> {{.RoomName}}</a> </il>
+                    {{end}}
+            </ul>
+
         </div>
+    </div>
+</div>
 
 
 

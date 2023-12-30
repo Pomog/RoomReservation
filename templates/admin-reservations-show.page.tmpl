@@ -93,10 +93,16 @@ Reservations
             </div>
 
             <hr>
-            <input type="submit" class="btn btn-primary" value="Save">
-            <a href="/admin/reservations-{{$src}}" class="btn btn-warning">Cancel</a>
+            <div class="float-left">
+                <input type="submit" class="btn btn-primary" value="Save">
+                <a href="/admin/reservations-{{$src}}" class="btn btn-warning">Cancel</a>
 
-            <a href="#!" class="btn btn-info" onclick="processRes({{$reservation.ID}})">Mark As Processed</a>
+                <a href="#!" class="btn btn-info" onclick="processRes({{$reservation.ID}})">Mark As Processed</a>
+            </div>
+            <div class="float-right">
+                <a href="#!" class="btn btn-danger" onclick="deleteRes({{$reservation.ID}})">Delete</a>
+            </div>
+            <div class="clearfix"></div>
         </form>
 
     </div>
@@ -109,6 +115,7 @@ Reservations
 {{$src := index .StringMap "src"}}
 <script>
     function processRes(id) {
+        console.log(id)
         attention.custom({
             title: 'Confirmation',
             icon: 'warning',
@@ -116,6 +123,20 @@ Reservations
             callback: function (result) {
                 if (result !== false) {
                     window.location.href = "/admin/processes-reservation/{{$src}}/" + id;
+                }
+            }
+        });
+    }
+
+    function deleteRes(id) {
+        console.log(id)
+        attention.custom({
+            title: 'Confirmation',
+            icon: 'warning',
+            msg: 'Are you sure?',
+            callback: function (result) {
+                if (result !== false) {
+                    window.location.href = "/admin/delete-reservation/{{$src}}/" + id;
                 }
             }
         });

@@ -606,6 +606,17 @@ func (m *Repository) AdminPostShowReservation(w http.ResponseWriter, r *http.Req
 	}
 
 	m.App.Session.Put(r.Context(), "flash", "Changes saved")
-	http.Redirect(w,r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
 }
 
+// AdminProcessReservations marks a reservation processed
+func (m *Repository) AdminProcessReservations(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("in the AdminProcessReservations")
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	src := chi.URLParam(r, "src")
+
+	_ = m.DB.UpdateProcessedForReservation(id, 1)
+	m.App.Session.Put(r.Context(), "flash", "Reservation marked as processed")
+
+	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+}

@@ -379,7 +379,7 @@ func (m *postgresDBRepo) GetReservationByID(id int) (models.Reservation, error) 
 }
 
 // UpdateReservation updates the reservation by reservation model in the database
-func (m *postgresDBRepo) UpdateReservation (r models.Reservation) error {
+func (m *postgresDBRepo) UpdateReservation(r models.Reservation) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -402,9 +402,8 @@ func (m *postgresDBRepo) UpdateReservation (r models.Reservation) error {
 	return nil
 }
 
-
 // DeleteReservation delete the reservation by ID
-func (m *postgresDBRepo) DeleteReservation (id int) error {
+func (m *postgresDBRepo) DeleteReservation(id int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -421,7 +420,7 @@ func (m *postgresDBRepo) DeleteReservation (id int) error {
 }
 
 // UpdateProcessedForReservation updates processed for a reservation by ID
-func (m *postgresDBRepo) UpdateProcessedForReservation (id, processed int) error {
+func (m *postgresDBRepo) UpdateProcessedForReservation(id, processed int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -435,4 +434,41 @@ func (m *postgresDBRepo) UpdateProcessedForReservation (id, processed int) error
 		return err
 	}
 	return nil
+}
+
+func (m *postgresDBRepo) AllRooms() ([]models.Room, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var rooms []models.Room
+
+	query := `
+		select id, room_name, created_at, updated_at from rooms order by room_name
+		`
+
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		return rooms, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var rm models.Room
+		err := rows.Scan(
+			&rm.ID,
+			&rm.RoomName,
+			&rm.CreatedAt,
+			&rm.UpdatedAt,
+		)
+		if err != nil {
+			return rooms, err
+		}
+		rooms = append(rooms, rm)
+	}
+
+	if err = rows.Err(); err != nil {
+		return rooms, err
+	}
+
+	return rooms, nil
 }

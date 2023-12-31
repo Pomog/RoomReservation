@@ -16,13 +16,30 @@ import (
 
 var app *config.AppConfig
 var pathToTemplates = "./templates"
+
 var functions = template.FuncMap{
 	"dateformate": HTMLFormateDate,
+	"formatDate":  FormatDate,
+	"iterate":     Iterate,
 }
 
 // returtns time as string YYYY-MM-DD
-func HTMLFormateDate (t time.Time) string{
+func HTMLFormateDate(t time.Time) string {
 	return t.Format("2006-01-02")
+}
+
+func FormatDate(t time.Time, f string) string {
+	return t.Format(f)
+}
+
+// Iterate returns a slice of ints starting at 1, going to count
+func Iterate(count int) []int {
+	var i int
+	var items []int
+	for i = 1; i <= count; i++ {
+		items = append(items, i)
+	}
+	return items
 }
 
 // NewRenderer creates a new template cache

@@ -21,6 +21,11 @@ var functions = template.FuncMap{
 	"dateformate": HTMLFormateDate,
 	"formatDate":  FormatDate,
 	"iterate":     Iterate,
+	"add":         Add,
+}
+
+func Add(a, b int) int {
+	return a + b
 }
 
 // returtns time as string YYYY-MM-DD

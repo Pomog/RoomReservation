@@ -718,3 +718,8 @@ func (m *Repository) AdminDeleteReservations(w http.ResponseWriter, r *http.Requ
 
 	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
 }
+
+// AdminPostCalendarReservations reservations calendar POST handling
+func (m *Repository) AdminPostCalendarReservations(w http.ResponseWriter, r *http.Request) {
+	log.Panicln("WORKS")
+}

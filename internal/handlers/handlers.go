@@ -744,13 +744,20 @@ func (m *Repository) AdminPostCalendarReservations(w http.ResponseWriter, r *htt
 		// that does not exist in the posted data and restrictionID > 1, then it is a blok need to remove
 		curMap := m.App.Session.Get(r.Context(), fmt.Sprintf("blockMap_map_%d", x.ID)).(map[string]int)
 		for name, value := range curMap {
+			fmt.Println("name: ", name, " value: ", value)
 			// ok will be false if value is not th the map
 			if val, ok := curMap[name]; ok {
 				// only pay attention to val > 0, and than are not in the form post
+				fmt.Println("val: ", val)
 				if val > 0 {
 					if !form.Has(fmt.Sprintf("remove_block_%d_%s", x.ID, name)) {
 						// delete restriction by id
-						log.Println("would delete block", value)
+						err := m.DB.DeleteBlockForRoom(value)
+						if err != nil {
+							helpers.ServerError(w, err)
+							return
+						}
+						log.Println("deleted restriction :", value, " name: ", name)
 					}
 				}
 			}
@@ -759,12 +766,18 @@ func (m *Repository) AdminPostCalendarReservations(w http.ResponseWriter, r *htt
 	}
 
 	// handle new blocks
-	for name, _:=range r.PostForm{
-		if strings.HasPrefix(name, "add_block"){
-			expoded := strings.Split(name, "_")
-			roomID, _ := strconv.Atoi(expoded[2])
+	for name := range r.PostForm {
+		if strings.HasPrefix(name, "add_block") {
+			exploded := strings.Split(name, "_")
+			roomID, _ := strconv.Atoi(exploded[2])
+			t, _ := time.Parse("2006-01-2", exploded[3])
 			// insert a new block
-			log.Println("would block for roomID: ", roomID, " for date: ", expoded[3])
+			err := m.DB.InsertBlockForRoom(roomID, t)
+			if err != nil {
+				helpers.ServerError(w, err)
+				return
+			}
+			log.Println("inserted restriction for roomId:", roomID, " at: ", exploded[3])
 		}
 	}
 

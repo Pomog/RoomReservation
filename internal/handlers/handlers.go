@@ -609,7 +609,7 @@ func (m *Repository) AdminCalendarReservations(w http.ResponseWriter, r *http.Re
 
 			} else {
 				// it is a block
-				blockMap[y.StartDate.Format("2006-01-2")] = y.RestrictionID
+				blockMap[y.StartDate.Format("2006-01-2")] = y.ID
 			}
 		}
 
@@ -744,12 +744,14 @@ func (m *Repository) AdminPostCalendarReservations(w http.ResponseWriter, r *htt
 		// that does not exist in the posted data and restrictionID > 1, then it is a blok need to remove
 		curMap := m.App.Session.Get(r.Context(), fmt.Sprintf("blockMap_map_%d", x.ID)).(map[string]int)
 		for name, value := range curMap {
-			fmt.Println("name: ", name, " value: ", value)
+			
 			// ok will be false if value is not th the map
 			if val, ok := curMap[name]; ok {
+				
 				// only pay attention to val > 0, and than are not in the form post
-				fmt.Println("val: ", val)
 				if val > 0 {
+					fmt.Println("name, data: ", name, "reservationID value: ", value)
+					fmt.Println("val: ", val)
 					if !form.Has(fmt.Sprintf("remove_block_%d_%s", x.ID, name)) {
 						// delete restriction by id
 						err := m.DB.DeleteBlockForRoom(value)

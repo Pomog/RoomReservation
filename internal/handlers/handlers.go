@@ -103,7 +103,7 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
-	fmt.Println("Reservation value:", reservation, "OK:", ok)
+
 	if !ok {
 		fmt.Println("m.App.Session.Get error")
 		m.App.Session.Put(r.Context(), "error", "can't parse form")
@@ -163,24 +163,26 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
-
+	
 	// send notifications - to gest
 
-	htmlMessage := fmt.Sprintf(`
-	<strong>Reservation Confirmation</strong>
-	Dear %s, <br>
-	This is confirm your reservation from %s to %s.
-	`, reservation.FirstName, reservation.StartDate.Format("2006-01-01"), reservation.EndDate.Format("2006-01-01"))
+	// htmlMessage := fmt.Sprintf(`
+	// <strong>Reservation Confirmation</strong>
+	// Dear %s, <br>
+	// This is confirm your reservation from %s to %s.
+	// `, reservation.FirstName, reservation.StartDate.Format("2006-01-01"), reservation.EndDate.Format("2006-01-01"))
 
-	msg := models.MailData{
-		To:       reservation.Email,
-		From:     "test@server.com",
-		Subject:  "Reservation Confirmation",
-		Content:  htmlMessage,
-		Template: "basic.html",
-	}
+	// msg := models.MailData{
+	// 	To:       reservation.Email,
+	// 	From:     "test@server.com",
+	// 	Subject:  "Reservation Confirmation",
+	// 	Content:  htmlMessage,
+	// 	Template: "basic.html",
+	// }
 
-	m.App.MailChan <- msg
+	// // m.App.MailChan <- msg
+
+
 
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
@@ -473,7 +475,7 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 	form.Required("email", "password")
 	form.IsEmail("email")
 	if !form.Valid() {
-		render.Template(w, r, "/user-login", &models.TemplateData{
+		render.Template(w, r, "login.page.tmpl", &models.TemplateData{
 			Form: form,
 		})
 		return
@@ -732,7 +734,6 @@ func (m *Repository) AdminProcessReservations(w http.ResponseWriter, r *http.Req
 		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-calendar?y=%s&m=%s", year, month), http.StatusSeeOther)
 	}
 
-	
 }
 
 // AdminDeleteReservations deletes a reservation

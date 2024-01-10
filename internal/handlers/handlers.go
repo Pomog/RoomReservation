@@ -118,10 +118,32 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sd := r.Form.Get("start_date")
+	ed := r.Form.Get("end_date")
+	// layout := "2006-01-02"
+	// startDate, err := time.Parse(layout, sd)
+	// if err != nil {
+	// 	m.App.Session.Put(r.Context(), "error", "can't parse start date")
+	// 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	// 	return
+	// }
+	// endDate, err := time.Parse(layout, ed)
+	// if err != nil {
+	// 	m.App.Session.Put(r.Context(), "error", "can't parse end date")
+	// 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	// 	return
+	// }
+
+	stringMap := make(map[string]string)
+	stringMap["start_date"] = sd
+	stringMap["end_date"] = ed
+
 	reservation.FirstName = r.Form.Get("first_name")
 	reservation.LastName = r.Form.Get("last_name")
 	reservation.Phone = r.Form.Get("phone")
 	reservation.Email = r.Form.Get("email")
+	// reservation.StartDate = startDate
+	// reservation.EndDate = endDate
 
 	form := forms.New(r.PostForm)
 	form.Required("first_name", "last_name", "email", "phone")
@@ -133,8 +155,9 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		data := make(map[string]interface{})
 		data["reservation"] = reservation
 		render.Template(w, r, "make-reservation.page.tmpl", &models.TemplateData{
-			Form: form,
-			Data: data,
+			Form:      form,
+			Data:      data,
+			StringMap: stringMap,
 		})
 		return
 	}
@@ -153,7 +176,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		EndDate:       reservation.EndDate,
 		RoomID:        reservation.RoomID,
 		ReservationID: newResrvationID,
-		RestrictionID: 3,
+		RestrictionID: 2,
 	}
 
 	err = m.DB.InsertRoomRestriction(restriction)
@@ -163,7 +186,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
-	
+
 	// send notifications - to gest
 
 	// htmlMessage := fmt.Sprintf(`
@@ -181,8 +204,6 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	// // m.App.MailChan <- msg
-
-
 
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)

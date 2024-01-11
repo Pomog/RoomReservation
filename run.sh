@@ -1,6 +1,7 @@
 #!/bin/bash
-go build -o bookings cmd/web/*.go && ./bookings
-```
+go build -o bookings cmd/web/*.go && 
+./bookings -dbname=bookings -dbuser=thoryur -dbpassword=plot123123
+
 #chmod +x run.sh
 # go test -v ./...
 # go test -v -cover ./...

@@ -103,6 +103,7 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+	fmt.Println(reservation.StartDate)
 
 	if !ok {
 		fmt.Println("m.App.Session.Get error")
@@ -118,25 +119,16 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sd := r.Form.Get("start_date")
-	ed := r.Form.Get("end_date")
-	// layout := "2006-01-02"
-	// startDate, err := time.Parse(layout, sd)
-	// if err != nil {
-	// 	m.App.Session.Put(r.Context(), "error", "can't parse start date")
-	// 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-	// 	return
-	// }
-	// endDate, err := time.Parse(layout, ed)
-	// if err != nil {
-	// 	m.App.Session.Put(r.Context(), "error", "can't parse end date")
-	// 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-	// 	return
-	// }
+	sd := reservation.StartDate
+	ed := reservation.EndDate
+
+	layout := "2006-01-02"
+	startDate := sd.Format(layout)
+	endDate := ed.Format(layout)
 
 	stringMap := make(map[string]string)
-	stringMap["start_date"] = sd
-	stringMap["end_date"] = ed
+	stringMap["start_date"] = startDate
+	stringMap["end_date"] = endDate
 
 	reservation.FirstName = r.Form.Get("first_name")
 	reservation.LastName = r.Form.Get("last_name")

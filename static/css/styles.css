@@ -1,16 +1,16 @@
 .my-footer {
-    height: 5em;
-    background-color: #163b65;
-    margin-top: 1.5em;
-    padding: 1em;
-    color: rgba(192, 213, 0, 0.815);
-    font-size: 80%;
+  height: 7rem;
+  background-color: #163b65;
+  margin-top: 1em;
+  padding: 1em;
+  color: rgba(192, 213, 0, 0.815);
+  font-size: 80%;
 }
 
 .notie-container {
-    box-shadow: none;
+  box-shadow: none;
 }
 
 .datepicker {
-    z-index: 10000;
+  z-index: 10000;
 }

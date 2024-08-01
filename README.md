@@ -1,5 +1,6 @@
 # Booking System
 
+01082023 chrck
 This repository contains the source code for a simple room booking system.
 <p>The system is built using Go and PostgreSQL.</p>
 
